@@ -1,5 +1,7 @@
 # Aion 2 Blender Addon
 
+https://github.com/user-attachments/assets/b89e38cb-8d15-40c4-811a-5f9099af04c5
+
 ## Setup
 
 1. Extract the following folders from Aion 2 using **FModel** or **UModel**:
