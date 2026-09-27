@@ -228,8 +228,13 @@ class Catalog:
         # both genders we glob for any hair file matching ``*_Hair_*.glb`` and then
         # filter out alternative type meshes (``*_Type``) which are not primary
         # hairstyles.
+        # Hair assets are stored in a sub‑folder per style (e.g. ``GF_Hair_001/GF_Hair_001.glb``).
+        # ``Path.glob`` only searches the directory itself, so it missed the nested files.
+        # Using ``rglob`` walks the hierarchy and finds every ``*_Hair_*.glb`` file while
+        # still filtering out the alternative layout meshes (``*_Type``) which are not the
+        # primary hairstyles.
         glbs = sorted(
-            p for p in base.glob("*_Hair_*.glb")
+            p for p in base.rglob("*_Hair_*.glb")
             if "_Type" not in p.stem
         )
         if usable_only:
