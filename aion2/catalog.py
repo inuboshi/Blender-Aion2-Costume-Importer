@@ -222,8 +222,14 @@ class Catalog:
         if not base.is_dir():
             return []
         # Only the primary mesh per style; *_Type1/_Type2 are alt card layouts.
+        # Hair assets are stored under the gender‑specific folder (``GF`` or ``GM``).
+        # Previously the implementation only globs for ``GF_Hair_*.glb`` which
+        # unintentionally excludes male hair assets (``GM_Hair_*.glb``).  To support
+        # both genders we glob for any hair file matching ``*_Hair_*.glb`` and then
+        # filter out alternative type meshes (``*_Type``) which are not primary
+        # hairstyles.
         glbs = sorted(
-            p for p in base.glob("*/GF_Hair_*.glb")
+            p for p in base.glob("*_Hair_*.glb")
             if "_Type" not in p.stem
         )
         if usable_only:
