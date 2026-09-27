@@ -7,12 +7,12 @@ https://github.com/user-attachments/assets/b89e38cb-8d15-40c4-811a-5f9099af04c5
 1. Extract the following folders from Aion 2 using **FModel** or **UModel**:
    - `AION2/Content/Character/Player/Common`
    - `AION2/Content/Character/Player/Customize`
-   - `AION2/Content/Character/Player/GF`
-   - `AION2/Content/Character/Player/HeadWear`
-   - `AION2/Content/Character/Player/ShoulderWear`
-   - `AION2/Content/Material/Chr`
+   - `AION2/Content/Character/Player/GF` for female
+   - `AION2/Content/Character/Player/GM` for male
+   - `AION2/Content/Character/Player/Common`
+   - `AION2/Content/Material`
 
-2. Make sure the extraction includes **`.gltf` models** and **`.tga` textures**.
+2. Make sure the extraction includes **`.gltf` models**, Properties `json`, and **`.tga` textures**.
 
 3. Install the addon in Blender.
 
