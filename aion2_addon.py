@@ -173,6 +173,24 @@ def _refresh_cache(force: bool = False) -> dict:
     items["counts"]["pupils"] = len(pupils)
     _CACHE["signature"] = signature
     _CACHE["items"] = items
+
+    # ---------------------------------------------------------------------
+    # Restore previously saved hair selection, if it still exists in the newly
+    # generated cache.  This runs on every refresh (including forced refreshes)
+    # and is safe to call even when no preferences have been saved yet.
+    # ---------------------------------------------------------------------
+    try:
+        prefs = bpy.context.preferences.addons[__name__].preferences
+        last = getattr(prefs, "last_hair", "")
+        if last:
+            hair_items = items.get("hair", [])
+            if any(entry[0] == last for entry in hair_items):
+                scene = bpy.context.scene
+                if hasattr(scene, "aion2"):
+                    scene.aion2.hair = last
+    except Exception:  # pragma: no cover - UI must stay alive
+        traceback.print_exc()
+
     return items
 
 
@@ -231,6 +249,24 @@ def _on_eye_choice_changed(self, context) -> None:
             return
         _preview_eyes(context)
     except Exception:  # pragma: no cover - UI must stay alive
+        traceback.print_exc()
+
+
+def _on_hair_changed(self, context) -> None:
+    """Property ``update`` hook: persist the selected hair folder.
+
+    When the user picks a different hair entry we write the identifier to the
+    add‑on preferences (``Aion2Preferences.last_hair``).  This value survives
+    Blender restarts because ``AddonPreferences`` are saved in the userprefs file.
+    The function is deliberately defensive – any exception is caught and logged
+    so the UI does not break when the preferences cannot be accessed (e.g. during
+    unit tests).
+    """
+    try:
+        # ``self`` is the Aion2Settings instance, which holds the ``hair`` attribute.
+        prefs = bpy.context.preferences.addons[__name__].preferences
+        prefs.last_hair = getattr(self, "hair", "")
+    except Exception:  # pragma: no cover - safety net for unexpected failures
         traceback.print_exc()
 
 
@@ -318,7 +354,7 @@ class Aion2Settings(PropertyGroup):
 
     basebody: EnumProperty(name="Base body", items=_enum_items("basebody"))
     head: EnumProperty(name="Head", items=_enum_items("head"))
-    hair: EnumProperty(name="Hair", items=_enum_items("hair"))
+    hair: EnumProperty(name="Hair", items=_enum_items("hair"), update=_on_hair_changed)
     armor: EnumProperty(name="Armour set", items=_enum_items("armor"))
 
     # Off by default: the armour meshes already bundle the skin underneath them,
@@ -544,6 +580,14 @@ class Aion2Preferences(AddonPreferences):
         description="Folder containing the 'aion2' package (and scripts/)",
         subtype="DIR_PATH",
         default=DEFAULT_PROJECT_ROOT,
+    )
+
+    # Store the identifier of the last selected hair folder so it can be restored
+    # when Blender is restarted.  An empty string means "no previous selection".
+    last_hair: StringProperty(
+        name="Last Hair",
+        description="Remember the last selected hair folder across Blender sessions",
+        default="",
     )
 
     def draw(self, context):
